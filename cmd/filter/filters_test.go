@@ -150,6 +150,130 @@ func TestFilter(t *testing.T) {
 	}
 }
 
+func TestContains(t *testing.T) {
+	type args struct {
+		arr    interface{}
+		target interface{}
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+		want    bool
+	}{
+		{
+			name: "Success number exist",
+			args: args{
+				arr:    []int{1, 2, 3, 4},
+				target: 2,
+			},
+			wantErr: false,
+			want:    true,
+		},
+		{
+			name: "Failed",
+			args: args{
+				arr:    "[]int{1, 2, 3, 4}",
+				target: nil,
+			},
+			wantErr: true,
+			want:    false,
+		},
+		{
+			name: "Success string slice",
+			args: args{
+				arr:    []string{"1", "2", "3", "4"},
+				target: "3",
+			},
+			wantErr: false,
+			want:    true,
+		},
+		{
+			name: "Success string slice but not found",
+			args: args{
+				arr:    []string{"1", "2", "3", "4"},
+				target: "9",
+			},
+			wantErr: false,
+			want:    false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := filter.Contains(tt.args.arr, tt.args.target)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Contains() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Contains() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestContainsParallel(t *testing.T) {
+	type args struct {
+		arr    interface{}
+		target interface{}
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+		want    bool
+	}{
+		{
+			name: "Success number exist",
+			args: args{
+				arr:    []int{1, 2, 3, 4},
+				target: 2,
+			},
+			wantErr: false,
+			want:    true,
+		},
+		{
+			name: "Failed",
+			args: args{
+				arr:    "[]int{1, 2, 3, 4}",
+				target: nil,
+			},
+			wantErr: true,
+			want:    false,
+		},
+		{
+			name: "Success string slice",
+			args: args{
+				arr:    []string{"1", "2", "3", "4"},
+				target: "3",
+			},
+			wantErr: false,
+			want:    true,
+		},
+		{
+			name: "Success string slice but not found",
+			args: args{
+				arr:    []string{"1", "2", "3", "4"},
+				target: "9",
+			},
+			wantErr: false,
+			want:    false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := filter.ContainsParallel(tt.args.arr, tt.args.target)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ContainsParallel() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ContainsParallel() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func BenchmarkFilterFast(b *testing.B) {
 	source := [100]int{}
 	for i := 0; i < len(source); i++ {

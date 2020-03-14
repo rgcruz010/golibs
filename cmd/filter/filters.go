@@ -1,7 +1,5 @@
 package filter
 
-// Source https://github.com/bastianrob/go-experiences/tree/master/filter
-
 import (
 	"errors"
 	"reflect"
@@ -9,6 +7,7 @@ import (
 )
 
 // Simple error collection
+// Source https://github.com/bastianrob/go-experiences/tree/master/filter
 var (
 	ErrInvalidSourceKind = errors.New("source value is not an array or slice")
 	ErrFilterFuncNil     = errors.New("filter function cannot be nil")
@@ -16,6 +15,7 @@ var (
 )
 
 // Simple an array/slice will guarantee same input order of results
+// Source https://github.com/bastianrob/go-experiences/tree/master/filter
 func Simple(source, filter interface{}) (interface{}, error) {
 	srcV := reflect.ValueOf(source)
 	kind := srcV.Kind()
@@ -55,6 +55,7 @@ func Simple(source, filter interface{}) (interface{}, error) {
 
 // Parallel an array using go routine
 // This function will not guarantee order of results
+// Source https://github.com/bastianrob/go-experiences/tree/master/filter
 func Parallel(source, filter interface{}) (interface{}, error) {
 	srcV := reflect.ValueOf(source)
 	kind := srcV.Kind()
@@ -110,4 +111,36 @@ func Parallel(source, filter interface{}) (interface{}, error) {
 	close(queue)
 
 	return ptrToElementOfSliceT.Interface(), nil
+}
+
+// Contains check if element exist in a slice
+func Contains(source, target interface{}) (bool, error) {
+
+	result, err := Simple(source, func(entry interface{}) bool {
+		return entry == target
+	})
+
+	if err != nil {
+		return false, err
+	}
+
+	srcV := reflect.ValueOf(result)
+
+	return srcV.Len() > 0, nil
+}
+
+// ContainsParallel check if element exist in a slice using go routines
+func ContainsParallel(source, target interface{}) (bool, error) {
+
+	result, err := Parallel(source, func(entry interface{}) bool {
+		return entry == target
+	})
+
+	if err != nil {
+		return false, err
+	}
+
+	srcV := reflect.ValueOf(result)
+
+	return srcV.Len() > 0, nil
 }
