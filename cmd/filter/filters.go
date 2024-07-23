@@ -16,7 +16,7 @@ var (
 
 // Simple an array/slice will guarantee same input order of results
 // Source https://github.com/bastianrob/go-experiences/tree/master/filter
-func Simple(source, filter interface{}) (interface{}, error) {
+func Simple(source any, filterFunc any) (any, error) {
 	srcV := reflect.ValueOf(source)
 	kind := srcV.Kind()
 
@@ -24,11 +24,11 @@ func Simple(source, filter interface{}) (interface{}, error) {
 		return nil, ErrInvalidSourceKind
 	}
 
-	if filter == nil {
+	if filterFunc == nil {
 		return nil, ErrFilterFuncNil
 	}
 
-	fv := reflect.ValueOf(filter)
+	fv := reflect.ValueOf(filterFunc)
 	if fv.Kind() != reflect.Func {
 		return nil, ErrFilterNotFunc
 	}
@@ -56,7 +56,7 @@ func Simple(source, filter interface{}) (interface{}, error) {
 // Parallel an array using go routine
 // This function will not guarantee order of results
 // Source https://github.com/bastianrob/go-experiences/tree/master/filter
-func Parallel(source, filter interface{}) (interface{}, error) {
+func Parallel(source any, filterFunc any) (any, error) {
 	srcV := reflect.ValueOf(source)
 	kind := srcV.Kind()
 
@@ -64,11 +64,11 @@ func Parallel(source, filter interface{}) (interface{}, error) {
 		return nil, ErrInvalidSourceKind
 	}
 
-	if filter == nil {
+	if filterFunc == nil {
 		return nil, ErrFilterFuncNil
 	}
 
-	fv := reflect.ValueOf(filter)
+	fv := reflect.ValueOf(filterFunc)
 
 	if fv.Kind() != reflect.Func {
 		return nil, ErrFilterNotFunc
@@ -114,10 +114,9 @@ func Parallel(source, filter interface{}) (interface{}, error) {
 }
 
 // Contains check if element exist in a slice
-func Contains(source, target interface{}) (bool, error) {
-
-	result, err := Simple(source, func(entry interface{}) bool {
-		return entry == target
+func Contains(source any, item any) (bool, error) {
+	result, err := Simple(source, func(entry any) bool {
+		return entry == item
 	})
 
 	if err != nil {
@@ -130,10 +129,9 @@ func Contains(source, target interface{}) (bool, error) {
 }
 
 // ContainsParallel check if element exist in a slice using go routines
-func ContainsParallel(source, target interface{}) (bool, error) {
-
-	result, err := Parallel(source, func(entry interface{}) bool {
-		return entry == target
+func ContainsParallel(source any, item any) (bool, error) {
+	result, err := Parallel(source, func(entry any) bool {
+		return entry == item
 	})
 
 	if err != nil {
